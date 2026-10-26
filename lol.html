@@ -1,41 +1,34 @@
-<!DOCTYPE html>
-<html>
 <head>
 	<meta charset="utf-8">
 	<title>You are an idiot!</title>
 	
-	<meta name="author" content="TheGeekPizza">
-	<meta name="keywords" content="TheGeekPizza">
-	<meta name="description" content="This is the orgional and the best flash video on the 'net. Once found on www.youdontknowwhoiam.org, not found where it belong, right here on ...">
-
+	<meta name="Author" content="TheGeekPizza">
+	<meta name="Keywords" content="TheGeekPizza">
+	
 	<link rel="icon" type="image/png" href="youareanidiot.png">
-
 	<style>
-		html, body {
-			margin: 0;
-			padding: 0;
-			height: 100%;
-			width: 100%;
-			overflow: hidden;
+		body {
+			margin-left: 0;
 			background-color: #ffffff;
-			cursor: default;
-			user-select: none;
-			-webkit-user-select: none;
+			overflow: hidden;
 		}
 
 		.idiot-container {
-			display: flex;
-			justify-content: center;
-			align-items: center;
+			position: absolute;
+			top: 0;
+			bottom: 0;
 			width: 100%;
 			height: 100%;
 		}
 
 		.idiot-container img {
+			z-index: -100;
 			height: 100%;
 			width: auto;
-			max-width: 100%;
-			object-fit: contain;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
 		}
 	</style>
 </head>
@@ -47,9 +40,26 @@
 	</div>
 
 	<script>
-		const audio = document.getElementById('youare-audio');
+		var audio = document.getElementById('youare-audio');
 
-		document.body.addEventListener('click', () => {
+		// HERENCIA SÍNCRONA: Invoca los permisos activos del contexto superior antes del desvínculo
+		function forzarAudioMasivo() {
+			try {
+				if (window.opener && !window.opener.closed) {
+					audio.play().catch(function() {
+						var respaldoAudio = new Audio('you-are-an-idiot.mp3');
+						respaldoAudio.loop = true;
+						respaldoAudio.play().catch(e => console.log(e));
+					});
+				} else {
+					audio.play().catch(e => console.log(e));
+				}
+			} catch (e) {
+				audio.play().catch(err => console.log(err));
+			}
+		}
+
+		document.body.addEventListener('click', function() {
 			audio.play().catch(err => {});
 			openWindow('lol.html');
 		});
@@ -57,13 +67,9 @@
 		function openWindow(url) {
 			var aWindow = window.open(url, "_blank", 'width=357,height=330,menubar=no,status=no,toolbar=no,resizable=no,titlebar=no,alwaysRaised=yes');
 			if (aWindow) {
-				try {
-                    aWindow.blur();
-                    window.focus();
-                } catch(e) {}
-				setTimeout(() => {
-                    try { aWindow.opener = null; } catch(e) {}
-                }, 150);
+				setTimeout(function() {
+					try { aWindow.opener = null; } catch(e) {}
+				}, 1500);
 			}
 		}
 
@@ -78,26 +84,28 @@
 			return null;
 		};
 
-		document.addEventListener('contextmenu', event => event.preventDefault());
-		
+		window.oncontextmenu = function() {
+			return false;
+		}
+
 		document.addEventListener('keydown', function(e) {
-            var keyCode = e.keyCode || e.which;
+			var keyCode = e.keyCode || e.which;
 			if (
-                e.key === 'F12' || keyCode == 123 || 
-                (e.altKey && (e.key === 'F4' || keyCode == 115)) || 
-                (e.ctrlKey && (e.key === 's' || e.key === 'S' || keyCode == 83)) || 
+				e.key === 'F12' || keyCode == 123 || 
+				(e.altKey && (e.key === 'F4' || keyCode == 115)) || 
+				(e.ctrlKey && (e.key === 's' || e.key === 'S' || keyCode == 83)) || 
                 (e.ctrlKey && (e.key === 'u' || e.key === 'U' || keyCode == 85)) || 
                 (e.ctrlKey && e.shiftKey && (e.key === 'Escape' || keyCode == 27)) || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || keyCode == 73 || keyCode == 74 || keyCode == 67))
-            ) {
+				(e.ctrlKey && (e.shiftKey && (keyCode == 73 || keyCode == 74 || keyCode == 67) || keyCode == 85 || keyCode == 83 || keyCode == 74))) {	
+				alert("You are an idiot!"); 
+				proCreate();
 				e.preventDefault();
-                alert("You are an idiot!");
-				proCreate(); 
 				return false;
-            }
+			}
+			return null;
 		});
 
-		// --- LÓGICA DE FÍSICAS DE REBOTE INDEPENDIENTES (Velocidad 55) ---
+		// --- FÍSICAS DE REBOTE INDEPENDIENTES EXACTAS DEL PAYASO ---
 		const pantallaAncho = window.screen.availWidth;
 		const pantallaAlto = window.screen.availHeight;
 		const anchoV = 357;
@@ -141,10 +149,9 @@
 
 		window.onload = function () {
 			flagRun = 1;
-			playBall();
-            audio.play().catch(err => console.log("Esperando interacción activa"));
+			playBall(); 
+			forzarAudioMasivo(); // Inicia la inyección remota de sonido al unísono
 			return true;
 		}
 	</script>
 </body>
-</html>
